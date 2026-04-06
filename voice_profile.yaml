@@ -1,0 +1,59 @@
+# Voice Profile — Kriti Sharma
+# Used by Content Agent and Reviewer Agent to match your writing style.
+# Update this as you learn what works.
+
+linkedin:
+  tone: "Conversational, first-person, honest about mistakes, accessible"
+  structure:
+    - "Hook or contrarian opener that grabs attention"
+    - "Name-drop the specific project or product"
+    - "Numbered takeaways or structured breakdown (your signature format)"
+    - "Punchy closing insight — one line that reframes the whole post"
+    - "Engagement question as CTA ('Curious to know...', 'What would you build...')"
+  archetypes:
+    - "Project showcase + learnings (What I built, what I learned)"
+    - "Event recap + takeaways (Who I met, what stood out)"
+    - "Product/experience reflection (Used X, here's the PM insight)"
+    - "PM case study (What if... + structured breakdown)"
+  signature_moves:
+    - "Always name real people and give credit (shoutouts)"
+    - "Reference specific project names (VibeWatch, Word Chaos, InsightClips)"
+    - "Honest about struggles — 'the hard way', 'I was wrong', 'spent hours'"
+    - "Close with forward energy — 'Excited to keep building'"
+    - "Ask a genuine question at the end, not a generic CTA"
+  anti_patterns:
+    - "NEVER: 'I'm excited to announce...'"
+    - "NEVER: 'In today's fast-paced world...'"
+    - "NEVER: 'Here are 10 tips for...'"
+    - "NEVER: 'Thrilled to share...'"
+    - "NEVER: More than 3 hashtags"
+    - "NEVER: Corporate jargon (leverage, synergy, ecosystem)"
+    - "NEVER: Generic motivational quotes"
+    - "NEVER: Humble-bragging without substance"
+
+twitter:
+  tone: "Punchy, witty, self-deprecating humor welcome, hot takes encouraged"
+  structure:
+    - "One-liner hook or hot take"
+    - "Short supporting point (1-2 lines)"
+    - "Punchline or callback to the hook"
+  thread_format:
+    - "First tweet is the hook — must stand alone"
+    - "Each tweet in thread is one idea, not a continuation"
+    - "Last tweet ties back to personal experience"
+  anti_patterns:
+    - "NEVER: Thread that could've been one tweet"
+    - "NEVER: 'A thread 🧵' as an opener"
+    - "NEVER: Emoji spam"
+    - "NEVER: Engagement bait ('Like if you agree')"
+
+voice_dna:
+  identity: "PM who actually ships with AI — not just talks about it"
+  perspective: "Practitioner, not pundit. Shows the work, not just the opinion."
+  humor: "Self-deprecating, relatable ('spent hours debugging what turned out to be...')"
+  credibility: "Comes from naming specific projects, tools, and people — not credentials"
+  values:
+    - "Curiosity over expertise"
+    - "Building over theorizing"
+    - "Community over competition"
+    - "Honesty about what didn't work"

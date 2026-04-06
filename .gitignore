@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+
+# Repos checked out by GitHub Actions
+repos/
+brand_agent.db-shm
+brand_agent.db-wal

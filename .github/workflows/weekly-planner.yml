@@ -1,0 +1,94 @@
+name: Weekly Content Planner
+
+on:
+  schedule:
+    # Sunday 8:00 PM IST = 2:30 PM UTC
+    - cron: '30 14 * * 0'
+  workflow_dispatch: # Manual trigger from Actions tab
+
+# ──────────────────────────────────────────────
+# CONFIGURE YOUR REPOS HERE
+# Add/remove repos as needed. Private repos need
+# the GH_PAT secret with `repo` scope.
+# ──────────────────────────────────────────────
+env:
+  PUBLIC_REPOS: >-
+    kritisharma2708/youTube-insights
+    kritisharma2708/competitive-analysis
+    kritisharma2708/snake-rl
+    kritisharma2708/snake_game
+  PRIVATE_REPOS: >-
+
+  # Add private repos here when ready, e.g.:
+  # kritisharma2708/metrics-agent
+  # kritisharma2708/support-insights
+
+jobs:
+  generate-weekly-plan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout pm-brand-agent
+        uses: actions/checkout@v4
+
+      - name: Checkout public project repos
+        run: |
+          mkdir -p repos
+          for repo in $PUBLIC_REPOS; do
+            name=$(echo "$repo" | cut -d'/' -f2)
+            echo "Cloning $repo..."
+            git clone --depth 50 "https://github.com/$repo.git" "repos/$name"
+          done
+
+      - name: Checkout private project repos
+        if: env.PRIVATE_REPOS != ''
+        run: |
+          for repo in $PRIVATE_REPOS; do
+            name=$(echo "$repo" | cut -d'/' -f2)
+            echo "Cloning private repo $repo..."
+            git clone --depth 50 "https://x-access-token:${{ secrets.GH_PAT }}@github.com/$repo.git" "repos/$name"
+          done
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build PROJECT_REPOS path list
+        id: repos
+        run: |
+          repo_paths=""
+          for dir in repos/*/; do
+            if [ -d "$dir/.git" ]; then
+              abs_path="$(cd "$dir" && pwd)"
+              if [ -n "$repo_paths" ]; then
+                repo_paths="$repo_paths,$abs_path"
+              else
+                repo_paths="$abs_path"
+              fi
+            fi
+          done
+          echo "PROJECT_REPOS=$repo_paths" >> $GITHUB_ENV
+          echo "Found repos: $repo_paths"
+
+      - name: Run weekly planner
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python3 main.py plan --days 90
+
+      - name: Commit and push plan
+        run: |
+          git config user.name "PM Brand Agent"
+          git config user.email "brand-agent@github-actions"
+          git add output/plans/ brand_agent.db
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Weekly content plan — $(date +%Y-%m-%d)"
+            git push
+          fi
