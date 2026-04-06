@@ -85,7 +85,9 @@ jobs:
         run: |
           git config user.name "PM Brand Agent"
           git config user.email "brand-agent@github-actions"
-          git add output/plans/ brand_agent.db
+          echo "Plan files generated:"
+          find output/plans/ -type f 2>/dev/null || echo "No plan files found"
+          git add -A output/plans/ brand_agent.db
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
