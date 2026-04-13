@@ -34,6 +34,7 @@ def init_db():
             engagement_likes INTEGER DEFAULT 0,
             engagement_shares INTEGER DEFAULT 0,
             engagement_comments INTEGER DEFAULT 0,
+            engagement_impressions INTEGER DEFAULT 0,
             scheduled_date TEXT
         );
 
@@ -69,11 +70,15 @@ def init_db():
             post_id INTEGER REFERENCES posts(id)
         );
     """)
-    # Migration: add scheduled_date to existing DBs
-    try:
-        conn.execute("ALTER TABLE posts ADD COLUMN scheduled_date TEXT")
-    except sqlite3.OperationalError:
-        pass  # Column already exists
+    # Migrations for existing DBs
+    for col, col_type in [
+        ("scheduled_date", "TEXT"),
+        ("engagement_impressions", "INTEGER DEFAULT 0"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE posts ADD COLUMN {col} {col_type}")
+        except sqlite3.OperationalError:
+            pass  # Column already exists
     conn.commit()
     conn.close()
 
@@ -103,14 +108,15 @@ def save_post(
     return post_id
 
 
-def score_post(post_id: int, likes: int, comments: int, shares: int):
+def score_post(post_id: int, likes: int, comments: int, shares: int, impressions: int = 0):
     """Record engagement metrics for a published post."""
     conn = get_connection()
     conn.execute(
         """UPDATE posts SET status='published', published_at=?,
-           engagement_likes=?, engagement_comments=?, engagement_shares=?
+           engagement_likes=?, engagement_comments=?, engagement_shares=?,
+           engagement_impressions=?
            WHERE id=?""",
-        (datetime.now().isoformat(), likes, comments, shares, post_id),
+        (datetime.now().isoformat(), likes, comments, shares, impressions, post_id),
     )
     conn.commit()
     conn.close()

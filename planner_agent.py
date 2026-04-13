@@ -13,6 +13,7 @@ import config
 import storage
 from content_agent import generate_post
 from learning_loop import get_latest_insight_for_prompt
+from notify import send_drafts
 from project_agent import build_project_context, scan_repos
 from reviewer_agent import review_with_retry
 from trend_agent import get_trending_summary
@@ -250,6 +251,11 @@ async def run_weekly_plan(days: int = 90) -> Optional[str]:
         status = "PASS" if r["review"].get("passed") else "REVIEW"
         print(f"  #{r['post_id']} {r['day']} [{r['platform']}] {r['content_mode']} — {score}/5 ({status})")
 
+    # Send to Telegram
+    dates = sorted(set(r["date"] for r in results))
+    week_label = dates[0] if dates else "this week"
+    await send_drafts(results, label=f"Weekly Plan — {week_label}")
+
     return filepath
 
 
@@ -294,7 +300,7 @@ def write_plan_file(results: list[dict]) -> str:
 
     lines.append(
         "\n*To score a post after publishing:* "
-        "`python3 main.py score <post_id> --likes N --comments N --shares N`"
+        "`python3 main.py score <post_id> --likes N --comments N --shares N --impressions N`"
     )
 
     content = "\n".join(lines)

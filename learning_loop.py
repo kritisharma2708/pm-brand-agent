@@ -11,16 +11,17 @@ import config
 import storage
 
 
-def score_post(post_id: int, likes: int, comments: int, shares: int):
+def score_post(post_id: int, likes: int, comments: int, shares: int, impressions: int = 0):
     """Record engagement metrics for a post via CLI."""
     post = storage.get_post_by_id(post_id)
     if not post:
         print(f"[ERROR] Post #{post_id} not found.")
         return False
 
-    storage.score_post(post_id, likes, comments, shares)
+    storage.score_post(post_id, likes, comments, shares, impressions)
     total = likes + comments * 3 + shares * 5  # Weighted engagement
-    print(f"[OK] Post #{post_id} scored: {likes} likes, {comments} comments, {shares} shares (weighted: {total})")
+    eng_rate = f" ({total / impressions * 100:.1f}% engagement rate)" if impressions > 0 else ""
+    print(f"[OK] Post #{post_id} scored: {likes} likes, {comments} comments, {shares} shares, {impressions} impressions (weighted: {total}){eng_rate}")
     return True
 
 
@@ -31,10 +32,13 @@ def _build_analysis_prompt(posts: list[dict]) -> str:
         engagement = ""
         if p["status"] == "published":
             total = p["engagement_likes"] + p["engagement_comments"] * 3 + p["engagement_shares"] * 5
+            impressions = p.get("engagement_impressions", 0)
+            eng_rate = f", engagement rate: {total / impressions * 100:.1f}%" if impressions > 0 else ""
             engagement = (
                 f"  Engagement: {p['engagement_likes']} likes, "
                 f"{p['engagement_comments']} comments, "
-                f"{p['engagement_shares']} shares (weighted: {total})"
+                f"{p['engagement_shares']} shares, "
+                f"{impressions} impressions (weighted: {total}{eng_rate})"
             )
         else:
             engagement = "  Engagement: not yet tracked"

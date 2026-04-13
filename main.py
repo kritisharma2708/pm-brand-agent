@@ -13,6 +13,7 @@ from learning_loop import analyze_engagement, get_latest_insight_for_prompt, sco
 from project_agent import build_project_context, scan_repos
 from reviewer_agent import review_with_retry
 from planner_agent import run_weekly_plan
+from notify import send_drafts
 from trend_agent import get_trending_summary
 
 
@@ -45,7 +46,7 @@ def write_drafts_file(results: list[dict]) -> str:
 
     lines.append(
         "\n*To score a post after publishing:* "
-        "`python3 main.py --score <post_id> --likes N --comments N --shares N`"
+        "`python3 main.py score <post_id> --likes N --comments N --shares N --impressions N`"
     )
 
     content = "\n".join(lines)
@@ -147,6 +148,9 @@ async def run_generate(args):
         score = r["review"].get("score", "?")
         status = "PASS" if r["review"].get("passed") else "REVIEW"
         print(f"  #{r['post_id']} [{r['platform']}] Score: {score}/5 ({status})")
+
+    # Send to Telegram
+    await send_drafts(results, label="New Drafts")
 
 
 async def run_generate_mix(args):
@@ -269,6 +273,9 @@ async def run_generate_mix(args):
         status = "PASS" if r["review"].get("passed") else "REVIEW"
         print(f"  #{r['post_id']} [{r['platform']}] {r['content_mode']} — Score: {score}/5 ({status})")
 
+    # Send to Telegram
+    await send_drafts(results, label="Content Mix")
+
 
 async def run_analyze():
     """Run engagement analysis on recent posts."""
@@ -300,7 +307,7 @@ def run_list():
     for p in posts:
         eng = ""
         if p["status"] == "published":
-            eng = f"L:{p['engagement_likes']} C:{p['engagement_comments']} S:{p['engagement_shares']}"
+            eng = f"L:{p['engagement_likes']} C:{p['engagement_comments']} S:{p['engagement_shares']} I:{p.get('engagement_impressions', 0)}"
         preview = p["content"][:40].replace("\n", " ") + "..."
         r_score = f"{p['reviewer_score']}/5" if p["reviewer_score"] else "—"
         print(f"  {p['id']:>3}  {p['platform']:<10}  {p['content_mode'] or '—':<12}  {r_score:>5}  {p['status']:<10}  {eng:<20}  {preview}")
@@ -326,6 +333,7 @@ def main():
     sc.add_argument("--likes", "-l", type=int, default=0)
     sc.add_argument("--comments", "-c", type=int, default=0)
     sc.add_argument("--shares", "-s", type=int, default=0)
+    sc.add_argument("--impressions", "-i", type=int, default=0)
 
     # Plan command — generate a full week of content
     plan = subparsers.add_parser("plan", help="Generate a weekly content plan (Tue/Thu/Sat)")
@@ -347,7 +355,7 @@ def main():
     elif args.command == "mix":
         asyncio.run(run_generate_mix(args))
     elif args.command == "score":
-        score_post(args.post_id, args.likes, args.comments, args.shares)
+        score_post(args.post_id, args.likes, args.comments, args.shares, args.impressions)
     elif args.command == "analyze":
         asyncio.run(run_analyze())
     elif args.command == "list":

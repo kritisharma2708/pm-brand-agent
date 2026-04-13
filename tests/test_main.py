@@ -41,7 +41,7 @@ def test_write_drafts_file(temp_output):
     assert "3/5" in content
     assert "1 retries" in content
     assert "insight-clips" in content
-    assert "--score" in content  # CLI hint
+    assert "score <post_id>" in content  # CLI hint
     assert "Post ID:** 1" in content
 
 

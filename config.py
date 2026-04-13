@@ -15,6 +15,10 @@ PROJECT_REPOS = [
     if p.strip()
 ]
 
+# Telegram notifications
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
+
 # Output
 OUTPUT_DIR = os.getenv("OUTPUT_DIR", os.path.join(os.path.dirname(__file__), "output"))
 DRAFTS_DIR = os.path.join(OUTPUT_DIR, "drafts")
