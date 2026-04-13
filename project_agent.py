@@ -98,6 +98,30 @@ COMMIT_WEIGHTS = {
 }
 
 
+def _staleness_factor(relative_date: str) -> float:
+    """Return a multiplier (0.0-1.0) based on how recent a commit is.
+
+    Parses git's --date=relative format (e.g. '3 days ago', '2 weeks ago').
+    """
+    match = re.search(r"(\d+)\s+(second|minute|hour|day|week|month|year)", relative_date.lower())
+    if not match:
+        return 0.5  # unknown format, mild penalty
+
+    num = int(match.group(1))
+    unit = match.group(2)
+    days_map = {"second": 0, "minute": 0, "hour": 0, "day": 1, "week": 7, "month": 30, "year": 365}
+    approx_days = num * days_map.get(unit, 1)
+
+    if approx_days <= 7:
+        return 1.0
+    elif approx_days <= 30:
+        return 0.7
+    elif approx_days <= 60:
+        return 0.4
+    else:
+        return 0.2
+
+
 def score_project(repo_data: dict) -> float:
     """Score a project's postability from 0.0 to 1.0.
 
@@ -124,6 +148,10 @@ def score_project(repo_data: dict) -> float:
         base_score *= 1.2
     elif avg_msg_len < 20:
         base_score *= 0.8
+
+    # Recency penalty: penalize repos where most recent commit is old
+    most_recent_date = commits[0].get("date", "")
+    base_score *= _staleness_factor(most_recent_date)
 
     return min(1.0, max(0.0, base_score))
 

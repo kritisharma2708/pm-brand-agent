@@ -15,13 +15,14 @@ env:
   PUBLIC_REPOS: >-
     kritisharma2708/youTube-insights
     kritisharma2708/competitive-analysis
-    kritisharma2708/snake-rl
-    kritisharma2708/snake_game
   PRIVATE_REPOS: >-
-
-  # Add private repos here when ready, e.g.:
-  # kritisharma2708/metrics-agent
-  # kritisharma2708/support-insights
+    kritisharma2708/insight-clips
+    kritisharma2708/metrics-agent
+    kritisharma2708/support-insights
+    kritisharma2708/product-brain
+    kritisharma2708/the-guest-room
+    kritisharma2708/accountability-bot
+    kritisharma2708/synopsis-video
 
 jobs:
   generate-weekly-plan:

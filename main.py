@@ -180,7 +180,7 @@ async def run_generate_mix(args):
 
     # Fetch trending news
     print("[INFO] Fetching trending topics...")
-    trending = get_trending_summary(limit=15)
+    trending = get_trending_summary(limit=30)
 
     # Define the mix: each entry is (content_mode, platform, description)
     mix_plan = []

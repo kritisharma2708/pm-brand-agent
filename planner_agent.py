@@ -147,7 +147,7 @@ async def run_weekly_plan(days: int = 90) -> Optional[str]:
     repos = scan_repos(repo_paths, days=days)
 
     print("[PLANNER] Fetching trending topics...")
-    trending = get_trending_summary(limit=15)
+    trending = get_trending_summary(limit=30)
 
     insight = get_latest_insight_for_prompt()
     if insight:

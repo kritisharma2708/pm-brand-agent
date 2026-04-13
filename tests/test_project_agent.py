@@ -96,9 +96,9 @@ def test_score_project_all_config():
 def test_score_project_all_features():
     repo_data = {
         "commits": [
-            {"type": "feature", "message": "add login flow with OAuth integration"},
-            {"type": "feature", "message": "implement search functionality with filters"},
-            {"type": "feature", "message": "create user dashboard with analytics charts"},
+            {"type": "feature", "message": "add login flow with OAuth integration", "date": "2 days ago"},
+            {"type": "feature", "message": "implement search functionality with filters", "date": "3 days ago"},
+            {"type": "feature", "message": "create user dashboard with analytics charts", "date": "5 days ago"},
         ]
     }
     score = project_agent.score_project(repo_data)
@@ -108,10 +108,10 @@ def test_score_project_all_features():
 def test_score_project_mixed():
     repo_data = {
         "commits": [
-            {"type": "feature", "message": "add search"},
-            {"type": "config", "message": "bump deps"},
-            {"type": "config", "message": "update ci"},
-            {"type": "config", "message": "fix lint"},
+            {"type": "feature", "message": "add search", "date": "2 days ago"},
+            {"type": "config", "message": "bump deps", "date": "3 days ago"},
+            {"type": "config", "message": "update ci", "date": "4 days ago"},
+            {"type": "config", "message": "fix lint", "date": "5 days ago"},
         ]
     }
     score = project_agent.score_project(repo_data)
@@ -122,7 +122,7 @@ def test_score_project_mixed():
 def test_score_project_verbose_fix_bonus():
     repo_data = {
         "commits": [
-            {"type": "fix", "message": "fix webhook URL parsing that broke when URLs had trailing slashes causing all notifications to fail silently"},
+            {"type": "fix", "message": "fix webhook URL parsing that broke when URLs had trailing slashes causing all notifications to fail silently", "date": "1 days ago"},
         ]
     }
     score = project_agent.score_project(repo_data)
@@ -137,12 +137,23 @@ def test_score_project_empty():
 def test_score_project_message_quality_bonus():
     """Long descriptive messages get a multiplier."""
     short = {
-        "commits": [{"type": "feature", "message": "add x"}]
+        "commits": [{"type": "feature", "message": "add x", "date": "2 days ago"}]
     }
     long = {
-        "commits": [{"type": "feature", "message": "add comprehensive search with fuzzy matching and filters"}]
+        "commits": [{"type": "feature", "message": "add comprehensive search with fuzzy matching and filters", "date": "2 days ago"}]
     }
     assert project_agent.score_project(long) > project_agent.score_project(short)
+
+
+def test_score_project_staleness_penalty():
+    """Old repos get penalized even if they have good commits."""
+    recent = {
+        "commits": [{"type": "feature", "message": "add login flow with OAuth integration", "date": "2 days ago"}]
+    }
+    stale = {
+        "commits": [{"type": "feature", "message": "add login flow with OAuth integration", "date": "3 months ago"}]
+    }
+    assert project_agent.score_project(recent) > project_agent.score_project(stale)
 
 
 # --- scan_repo tests ---
